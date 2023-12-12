@@ -1,120 +1,138 @@
 <!DOCTYPE html>
-<!-- 이걸 본 당신, 개발자 모드를 켰구만 디자인이 마음에 들어 다운 받아 가려고 하는건가? -->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>201580ag web</title>
+  <title>시간 및 날짜 표시</title>
   <style>
     body {
-      font-family: 'Arial', sans-serif;
-      background-color: #0d0d0d;
-      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
       margin: 0;
-      padding: 0;
-      transition: background-color 0.3s ease;
-    }
-
-    body.dark-theme {
-      background-color: #333;
-    }
-
-    header {
-      background-color: #333;
-      padding: 1em;
-      text-align: center;
-    }
-
-    section {
-      max-width: 800px;
-      margin: 2em auto;
-      padding: 20px;
-      background-color: #1a1a1a;
-      border: 2px solid #333;
-      border-radius: 8px;
+      font-family: Arial, sans-serif;
+      transition: background-color 0.5s, color 0.5s;
       position: relative;
     }
 
-    h2 {
-      color: #17a2b8;
+    #time, #date {
+      font-size: 2em;
+      margin-bottom: 10px;
     }
 
-    p {
-      line-height: 1.6;
+    #userAgentInfo {
+      font-size: 0.8em;
+      position: absolute;
+      bottom: 10px;
+      color: #777;
     }
 
-    .theme-button {
-      position: fixed;
+    #toggleButton, #developerButton {
+      position: absolute;
       top: 10px;
-      right: 10px;
       padding: 10px;
       cursor: pointer;
-      background-color: #28a745;
-      border: 2px solid #333;
+      border: none;
       border-radius: 5px;
-      color: #fff;
-      transition: background-color 0.3s ease;
+      transition: background-color 0.5s, color 0.5s;
     }
 
-    .theme-button:hover {
-      background-color: #218838;
+    #toggleButton {
+      right: 95px;
     }
 
-    .datetime {
-      position: fixed;
-      bottom: 10px;
+    #developerButton {
       right: 10px;
-      background-color: #1a1a1a;
-      padding: 10px;
-      border-radius: 5px;
-      border: 2px solid #333;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>201580ag</h1>
-  </header>
-
-  <section>
-    <h2>프로젝트</h2>
-    <p>여기에 프로젝트에 대한 설명이 들어갑니다.</p>
-
-    <h2>기술 스택</h2>
-    <p>여기에 사용한 기술 스택에 대한 설명이 들어갑니다.</p>
-  </section>
-
-  <button class="theme-button" onclick="toggleTheme()">테마 변경</button>
-
-  <div class="datetime"></div>
+  <div id="time"></div>
+  <div id="date"></div>
+  <div id="userAgentInfo"></div>
+  <button id="toggleButton" onclick="toggleTheme()">Theme</button>
+  <button id="developerButton" onclick="openGitHub()">Developer</button>
 
   <script>
+    var isDarkTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
     function toggleTheme() {
-      document.body.classList.toggle('dark-theme');
+      isDarkTheme = !isDarkTheme;
+      updateTheme();
     }
 
-    function updateDateTime() {
+    function updateTheme() {
+      var body = document.body;
+      var timeElement = document.getElementById('time');
+      var dateElement = document.getElementById('date');
+      var userAgentInfoElement = document.getElementById('userAgentInfo');
+      var toggleButton = document.getElementById('toggleButton');
+      var developerButton = document.getElementById('developerButton');
+
+      if (isDarkTheme) {
+        body.style.backgroundColor = 'black';
+        body.style.color = 'yellow';
+        timeElement.style.color = 'yellow';
+        dateElement.style.color = 'yellow';
+        userAgentInfoElement.style.color = '#aaa';
+        toggleButton.style.backgroundColor = '#FFD700';  // 노란색 배경
+        toggleButton.style.color = 'black';  // 검은색 글자
+        developerButton.style.backgroundColor = '#FFD700';  // 노란색 배경
+        developerButton.style.color = 'black';  // 검은색 글자
+      } else {
+        body.style.backgroundColor = 'white';
+        body.style.color = 'black';
+        timeElement.style.color = 'black';
+        dateElement.style.color = 'black';
+        userAgentInfoElement.style.color = '#777';
+        toggleButton.style.backgroundColor = 'black';  // 검은색 배경
+        toggleButton.style.color = 'white';  // 하얀색 글자
+        developerButton.style.backgroundColor = 'black';  // 검은색 배경
+        developerButton.style.color = 'white';  // 하얀색 글자
+      }
+    }
+
+    function updateTime() {
       var now = new Date();
-      var datetimeElement = document.querySelector('.datetime');
-      datetimeElement.innerHTML = `
-        현재 시각: ${now.toLocaleTimeString()}
-        <br>
-        현재 날짜: ${now.toLocaleDateString()}
-        <br>
-        오늘은 ${getDayOfWeek(now.getDay())}요일입니다.
-      `;
+
+      var hours = now.getHours();
+      var minutes = now.getMinutes();
+      var seconds = now.getSeconds();
+
+      var ampm = hours >= 12 ? '오후' : '오전';
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+
+      var timeString = `${ampm} ${hours < 10 ? '0' : ''}${hours}:${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+      document.getElementById('time').textContent = timeString;
+
+      var year = now.getFullYear();
+      var month = now.getMonth() + 1;
+      var day = now.getDate();
+      var dayOfWeek = getDayOfWeek(now.getDay());
+
+      var dateString = `${year}년 ${month < 10 ? '0' : ''}${month}월 ${day < 10 ? '0' : ''}${day}일 ${dayOfWeek}`;
+      document.getElementById('date').textContent = dateString;
+
+      var userAgentInfoElement = document.getElementById('userAgentInfo');
+      var userAgent = navigator.userAgent;
+      userAgentInfoElement.textContent = `User Agent: ${userAgent}\n | Design by 201580ag`;
     }
 
     function getDayOfWeek(dayIndex) {
-      var daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
+      const daysOfWeek = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
       return daysOfWeek[dayIndex];
     }
 
-    // 초기에 한 번 호출
-    updateDateTime();
+    function openGitHub() {
+      window.open('https://www.github.com/201580ag');
+    }
 
-    // 1초마다 갱신
-    setInterval(updateDateTime, 1000);
+    updateTime();
+    setInterval(updateTime, 500);
+    updateTheme();
   </script>
 </body>
 </html>
